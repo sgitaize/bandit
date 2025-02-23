@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Einarmiger Bandit</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎰 Einarmiger Bandit 🎰</h1>
+        
+        <!-- Startseite mit Buttons für Spielstart und Admin-Bereich -->
+        <button onclick="openPopup('playerSelection')">Spiel starten</button>
+        
+        <!-- Spieleranzahl-Auswahl -->
+        <div id="playerSelection" class="popup hidden">
+            <button class="close-popup" onclick="closePopup('playerSelection')">
+                <span class="close-x">X</span></button>
+            <h2>Wähle die Anzahl der Spieler</h2>
+            <div id="playerButtons"></div>
+            <button onclick="confirmPlayers()">Weiter</button>
+        </div>
+
+        <!-- Einsatzauswahl -->
+        <div id="betSelection" class="popup hidden">
+            <button class="close-popup" onclick="closePopup('betSelection')"><span class="close-x">X</span></button>
+            <h2>Wähle deinen Einsatz</h2>
+            <div id="betOptions"></div>
+            <p id="errorMessage" style="color: red; display: none;">Bitte für alle Spieler einen Einsatz wählen!</p>
+            <button id="spinButton" disabled>Spin starten</button>
+        </div>
+
+        <!-- Slot-Maschine -->
+        <div id="gameContainer" class="hidden">
+            <div id="slotMachine" class="slot-machine">
+                <div class="slot" id="slot1">❓</div>
+                <div class="slot" id="slot2">❓</div>
+                <div class="slot" id="slot3">❓</div>
+            </div>
+            <h2 id="result">Drücke einen Knopf zum Start!</h2>
+            <div id="betSummary" class="bet-summary"></div>
+        </div>
+
+        <div class="buttons-bottom">
+            <button id="replayButton" class="hidden display-block" onclick="replayGame()">Nochmal spielen</button>
+            <button class="admin-footer" onclick="openPopup('adminPopup')">Admin-Bereich</button>
+        </div>
+        
+        <div id="adminPopup" class="popup hidden">
+            <button class="close-popup" onclick="closePopup('adminPopup')"><span class="close-x">X</span></button>
+            <h2>Admin-Bereich</h2>
+            <label for="winChance">Gewinnchance: </label>
+            <input type="range" id="winChance" min="30" max="75" step="1" value="40" oninput="updateWinChance(this.value)">
+            <span id="winChanceValue">45%</span>
+            (C) 2025 Sarah & Simon
+            <button onclick="closePopup('adminPopup')">Schließen</button>
+        </div>
+    </div>
+
+    <!-- Skript wird erst nach dem HTML geladen -->
+    <script src="script.js"></script>
+</body>
+</html>
