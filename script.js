@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
+    
+    const spinSound = new Audio("slot-machine.mp3");
+    const loseSound = new Audio("https://www.myinstants.com/media/sounds/sad-trombone.mp3");
+    const winSound = new Audio("https://www.myinstants.com/media/sounds/fanfare.mp3");
     const playerButtons = document.getElementById("playerButtons");
     const betOptions = document.getElementById("betOptions");
     const spinButton = document.getElementById("spinButton");
@@ -98,7 +102,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function startSpin() {
         document.getElementById("result").textContent = "...";
-        const spinSound = new Audio("slot-machine.mp3");
         spinSound.play();
         let spinDuration = 2500
         let interval = setInterval(() => {
@@ -127,15 +130,14 @@ document.addEventListener("DOMContentLoaded", () => {
             result = "JACKPOT! Gewinn x10";
             className = "win";
             multiplier = 10;
-            const winSound = new Audio("https://www.myinstants.com/media/sounds/fanfare.mp3");
             winSound.play();
         } else if (Math.random() * 100 < winChance) {
             multiplier = getRandomMultiplier();
             result = `Gewonnen! Gewinn x${multiplier}`;
             className = "win";
+            
             winSound.play();
         } else {
-            const loseSound = new Audio("https://www.myinstants.com/media/sounds/sad-trombone.mp3");
             loseSound.play();
             setTimeout(() => {
                 resultText.classList.remove("lose"); // Stoppt das Wackeln nach 3 Sekunden
