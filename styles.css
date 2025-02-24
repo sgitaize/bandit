@@ -119,7 +119,7 @@ button:disabled {
 .win {
     color: #4caf50;
     font-weight: bold;
-    animation: pulseWin 1s infinite;
+    animation: pulseWin 1s 5;
 }
 
 @keyframes pulseWin {
@@ -131,7 +131,7 @@ button:disabled {
 .lose {
     color: #ff3b3b;
     font-weight: bold;
-    animation: shakeLose 0.5s infinite;
+    animation: shakeLose 0.5s 5;
 }
 
 @keyframes shakeLose {
