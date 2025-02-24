@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    
     <div class="container">
         <h1>🎰 Einarmiger Bandit 🎰</h1>
         
@@ -32,14 +33,16 @@
         </div>
 
         <!-- Slot-Maschine -->
-        <div id="gameContainer" class="hidden">
+        <div id="gameContainer">
             <div id="slotMachine" class="slot-machine">
                 <div class="slot" id="slot1">❓</div>
                 <div class="slot" id="slot2">❓</div>
                 <div class="slot" id="slot3">❓</div>
             </div>
             <h2 id="result">Drücke einen Knopf zum Start!</h2>
-            <div id="betSummary" class="bet-summary"></div>
+            <div id="betSummary" class="hidden bet-summary">
+                <h3 id="result">Viel Glück!</h3>
+            </div>
         </div>
 
         <div class="buttons-bottom">

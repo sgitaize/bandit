@@ -197,3 +197,7 @@ button:disabled {
     font-weight: bold;
     margin-top: 15px;
 }
+
+#result.spinning {
+    color: white !important;
+}

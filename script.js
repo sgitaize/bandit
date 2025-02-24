@@ -51,6 +51,14 @@ document.addEventListener("DOMContentLoaded", () => {
         generateBetOptions();
     }
 
+    function initializeSlots() {
+        document.getElementById("slot1").textContent = "❓";
+        document.getElementById("slot2").textContent = "❓";
+        document.getElementById("slot3").textContent = "❓";
+    }
+    
+    document.addEventListener("DOMContentLoaded", initializeSlots);
+
     function generateBetOptions() {
         betOptions.innerHTML = "";
         bets = {};
@@ -101,7 +109,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startSpin() {
-        document.getElementById("result").textContent = "...";
+        let resultElement = document.getElementById("result");
+            resultElement.textContent = "...";
+            resultElement.classList.remove("win", "lose"); // Entfernt die vorherigen Farben
+            resultElement.classList.add("spinning"); // Macht es weiß
         spinSound.play();
         let spinDuration = 3000
         let interval = setInterval(() => {
