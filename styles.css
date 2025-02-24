@@ -193,6 +193,7 @@ button:disabled {
 }
 
 #result {
+    color: white;
     font-size: 24px;
     font-weight: bold;
     margin-top: 15px;
