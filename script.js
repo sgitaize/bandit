@@ -101,9 +101,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startSpin() {
-        result.Element.textContent = "...";
+        document.getElementById("result").textContent = "...";
         spinSound.play();
-        let spinDuration = 2500
+        let spinDuration = 3000
         let interval = setInterval(() => {
             slot1.innerText = symbols[Math.floor(Math.random() * symbols.length)];
             slot2.innerText = symbols[Math.floor(Math.random() * symbols.length)];
