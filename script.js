@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const spinSound = new Audio("slot-machine.mp3");
     const winSound = new Audio("https://www.myinstants.com/media/sounds/fanfare.mp3");
     const loseSound = new Audio("https://www.myinstants.com/media/sounds/sad-trombone.mp3");
 
@@ -99,8 +98,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         betSummary.innerHTML = summary;
     }
-
     function startSpin() {
+        const spinSound = new Audio("slot-machine.mp3");
         spinSound.play();
         let spinDuration = 2500
         let interval = setInterval(() => {
@@ -111,7 +110,6 @@ document.addEventListener("DOMContentLoaded", () => {
         
         setTimeout(() => {
             clearInterval(interval);
-            spinSound.pause();
             let final1 = symbols[Math.floor(Math.random() * symbols.length)];
             let final2 = symbols[Math.floor(Math.random() * symbols.length)];
             let final3 = symbols[Math.floor(Math.random() * symbols.length)];
