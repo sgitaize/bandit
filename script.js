@@ -101,9 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startSpin() {
-        const resultElement = document.getElementById("result");
         result.Element.textContent = "...";
-        resultElement.style.color = "white";
         spinSound.play();
         let spinDuration = 2500
         let interval = setInterval(() => {
