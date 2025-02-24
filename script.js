@@ -97,6 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startSpin() {
+        document.getElementById("result").textContent = "...";
         const spinSound = new Audio("slot-machine.mp3");
         spinSound.play();
         let spinDuration = 2500
