@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
     <div class="container">
         <h1>🎰 Einarmiger Bandit 🎰</h1>
         
@@ -32,17 +31,33 @@
             <button id="spinButton" disabled>Spin starten</button>
         </div>
 
-        <!-- Slot-Maschine -->
-        <div id="gameContainer">
-            <div id="slotMachine" class="slot-machine">
-                <div class="slot" id="slot1">❓</div>
-                <div class="slot" id="slot2">❓</div>
-                <div class="slot" id="slot3">❓</div>
+        <div class="slot-table-flex">
+            <!-- Slot-Maschine immer zentriert -->
+            <div class="slot-center-area">
+                <div id="slotMachine" class="slot-machine-matrix">
+                    <div class="slot-row">
+                        <div class="slot" id="slot-0-0">❓</div>
+                        <div class="slot" id="slot-0-1">❓</div>
+                        <div class="slot" id="slot-0-2">❓</div>
+                    </div>
+                    <div class="slot-row">
+                        <div class="slot" id="slot-1-0">❓</div>
+                        <div class="slot" id="slot-1-1">❓</div>
+                        <div class="slot" id="slot-1-2">❓</div>
+                    </div>
+                    <div class="slot-row">
+                        <div class="slot" id="slot-2-0">❓</div>
+                        <div class="slot" id="slot-2-1">❓</div>
+                        <div class="slot" id="slot-2-2">❓</div>
+                    </div>
+                </div>
+                <div id="gameContainer" class="hidden">
+                    <h2 id="result">Drücke einen Knopf zum Start!</h2>
+                    <div id="betSummary" class="bet-summary"></div>
+                </div>
             </div>
-            <h2 id="result">Drücke einen Knopf zum Start!</h2>
-            <div id="betSummary" class="hidden bet-summary">
-                <h3 id="result">Viel Glück!</h3>
-            </div>
+            <!-- Gewinntabelle dauerhaft sichtbar, Desktop: rechts, Mobil: unten -->
+            <div id="winTable" class="bet-summary"></div>
         </div>
 
         <div class="buttons-bottom">
@@ -56,7 +71,12 @@
             <label for="winChance">Gewinnchance: </label>
             <input type="range" id="winChance" min="30" max="75" step="1" value="40" oninput="updateWinChance(this.value)">
             <span id="winChanceValue">45%</span>
-            (C) 2025 Sarah & Simon
+            <br>
+            <span style="display:block;height:8px;"></span>
+            <span style="display:block;margin-top:8px;">
+                &copy; 2025<br>
+                made with <span style="color:#e25555;">❤️</span> by Sarah &amp; Simon
+            </span>
             <button onclick="closePopup('adminPopup')">Schließen</button>
         </div>
     </div>

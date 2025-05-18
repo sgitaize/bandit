@@ -7,6 +7,7 @@ body {
 
 .container {
     margin-top: 20px;
+    position: relative;
 }
 
 .slot-machine {
@@ -20,20 +21,50 @@ body {
     box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.5);
 }
 
+.slot-machine-matrix {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 40px auto 10px auto;
+    background: #16213e;
+    border-radius: 15px;
+    box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.5);
+    padding: 10px 0 10px 0;
+    width: max-content;
+}
+
+.slot-row {
+    display: flex;
+    justify-content: center;
+}
+
 .slot {
-    width: 90px;
-    height: 90px;
-    font-size: 50px;
-    border: 3px solid gold;
+    width: 60px;
+    height: 60px;
+    font-size: 2.2em;
+    border: 2px solid gold;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 5px;
+    margin: 4px;
     background: #0f3460;
     color: gold;
     font-weight: bold;
     border-radius: 10px;
     box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 0.3);
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.slot.win-line {
+    border-color: #4caf50;
+    box-shadow: 0 0 10px #4caf50, 0px 0px 10px rgba(255,255,255,0.3) inset;
+    background: #1e5631;
+    color: #fffbe7;
+}
+
+.slot.lose-line {
+    opacity: 0.5;
 }
 
 .admin-footer {
@@ -196,8 +227,141 @@ button:disabled {
     font-size: 24px;
     font-weight: bold;
     margin-top: 15px;
+    min-height: 32px;
 }
 
-#result.spinning {
-    color: white !important;
+.slot-win-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    max-width: 700px;
+    margin: 30px auto 0 auto;
+    background: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+.slot-table-flex {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 700px;
+    margin: 30px auto 0 auto;
+}
+
+.slot-center-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    z-index: 1;
+}
+
+#slotMachine {
+    flex-shrink: 0;
+    margin: 0 auto;
+}
+
+#winTable {
+    background: #0f3460;
+    border-radius: 12px;
+    box-shadow: 0px 0px 10px rgba(255,215,0,0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: box-shadow 0.2s;
+    height: fit-content;
+    min-width: 200px;
+    max-width: 240px;
+    /* Erhöhe das Padding für mehr Hintergrundfläche */
+    padding: 16px 18px;
+    margin: 0;
+    position: static;
+}
+
+.win-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+    color: gold;
+    font-size: 17px;
+    margin-top: 0;
+    margin-bottom: 0;
+    display: table;
+    border: 2px solid gold;
+}
+.win-table th, .win-table td {
+    border: 1px solid gold;
+    padding: 6px 10px;
+    text-align: center;
+    /* Gitterlinien */
+    border-right: 1px solid gold;
+    border-bottom: 1px solid gold;
+}
+.win-table th:last-child, .win-table td:last-child {
+    border-right: none;
+}
+.win-table tr:last-child td {
+    border-bottom: none;
+}
+.win-table th {
+    background: #16213e;
+    color: #ffd700;
+    font-size: 18px;
+    padding: 6px 10px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+@media (min-width: 700px) {
+    .slot-table-flex {
+        justify-content: center;
+    }
+    #winTable {
+        position: absolute;
+        left: 100%;
+        top: 0;
+        margin-left: 32px;
+        margin-top: 0;
+    }
+    .slot-center-area {
+        width: auto;
+    }
+}
+
+@media (max-width: 900px) {
+    .slot-table-flex {
+        flex-direction: column;
+        align-items: center;
+        max-width: 100%;
+        margin-top: 10px;
+    }
+    #winTable {
+        position: static;
+        margin: 10px 0 0 0;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(255,215,0,0.10);
+        padding: 0;
+        max-width: 100%;
+        min-width: 0;
+    }
+    .win-table th, .win-table td {
+        font-size: 14px;
+        padding: 4px 6px;
+    }
+}
+
+@media (max-width: 600px) {
+    #winTable {
+        margin-top: 10px;
+    }
+    .win-table th, .win-table td {
+        font-size: 12px;
+        padding: 2px 4px;
+    }
 }

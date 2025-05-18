@@ -14,15 +14,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const betSummary = document.getElementById("betSummary");
     const winChanceSlider = document.getElementById("winChance");
     const winChanceValue = document.getElementById("winChanceValue");
+    const winTableDiv = document.getElementById("winTable");
+
+    // Slot-Matrix Felder
+    const slotMatrixEls = [
+        [document.getElementById("slot-0-0"), document.getElementById("slot-0-1"), document.getElementById("slot-0-2")],
+        [document.getElementById("slot-1-0"), document.getElementById("slot-1-1"), document.getElementById("slot-1-2")],
+        [document.getElementById("slot-2-0"), document.getElementById("slot-2-1"), document.getElementById("slot-2-2")]
+    ];
 
     let numPlayers = 1;
     let bets = {};
     let winChance = 45;
     let symbols = ["🍒", "🍋", "🍊", "🍉", "⭐", "💎", "🔔", "🍇"];
     
-    function getRandomMultiplier() {
-        return Math.floor(Math.random() * (4 - 2 + 1)) + 2; // Multiplikator zwischen 2 und 4
+    // Gewinntabelle: Symbol -> [3x, 2x] Multiplikator
+    const winTable = [
+        { symbol: "💎", name: "Diamant", three: 20, two: 5 },
+        { symbol: "⭐", name: "Stern", three: 10, two: 3 },
+        { symbol: "🔔", name: "Glocke", three: 8, two: 2 },
+        { symbol: "🍉", name: "Wassermelone", three: 6, two: 2 },
+        { symbol: "🍇", name: "Traube", three: 5, two: 1 },
+        { symbol: "🍊", name: "Orange", three: 4, two: 1 },
+        { symbol: "🍋", name: "Zitrone", three: 3, two: 1 },
+        { symbol: "🍒", name: "Kirsche", three: 2, two: 1 }
+    ];
+
+    // Hilfsfunktion: Symbol zu Tabelle
+    function getWinEntry(symbol) {
+        return winTable.find(e => e.symbol === symbol);
     }
+
+    // Initialisiere Gewinnchance-Slider korrekt
+    winChanceSlider.value = winChance;
+    winChanceValue.innerText = winChance + "%";
 
     window.openPopup = function(id) {
         document.getElementById(id).classList.remove("hidden");
@@ -50,14 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
         openPopup("betSelection");
         generateBetOptions();
     }
-
-    function initializeSlots() {
-        document.getElementById("slot1").textContent = "❓";
-        document.getElementById("slot2").textContent = "❓";
-        document.getElementById("slot3").textContent = "❓";
-    }
-    
-    document.addEventListener("DOMContentLoaded", initializeSlots);
 
     function generateBetOptions() {
         betOptions.innerHTML = "";
@@ -109,54 +126,130 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startSpin() {
-        let resultElement = document.getElementById("result");
-            resultElement.textContent = "...";
-            resultElement.classList.remove("win", "lose"); // Entfernt die vorherigen Farben
-            resultElement.classList.add("spinning"); // Macht es weiß
+        resultText.textContent = "...";
         spinSound.play();
-        let spinDuration = 3000
+        // Animation: Zufällige Symbole rotieren
+        let spinDuration = 3000;
+        let matrix = [
+            ["", "", ""],
+            ["", "", ""],
+            ["", "", ""]
+        ];
         let interval = setInterval(() => {
-            slot1.innerText = symbols[Math.floor(Math.random() * symbols.length)];
-            slot2.innerText = symbols[Math.floor(Math.random() * symbols.length)];
-            slot3.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    let sym = symbols[Math.floor(Math.random() * symbols.length)];
+                    matrix[i][j] = sym;
+                    slotMatrixEls[i][j].innerText = sym;
+                    slotMatrixEls[i][j].classList.remove("win-line", "lose-line");
+                }
+            }
         }, 100);
-        
+
         setTimeout(() => {
             clearInterval(interval);
-            let final1 = symbols[Math.floor(Math.random() * symbols.length)];
-            let final2 = symbols[Math.floor(Math.random() * symbols.length)];
-            let final3 = symbols[Math.floor(Math.random() * symbols.length)];
-            slot1.innerText = final1;
-            slot2.innerText = final2;
-            slot3.innerText = final3;
-            checkWin(final1, final2, final3);
+            // Endgültige Matrix generieren
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    let sym = symbols[Math.floor(Math.random() * symbols.length)];
+                    matrix[i][j] = sym;
+                    slotMatrixEls[i][j].innerText = sym;
+                    slotMatrixEls[i][j].classList.remove("win-line", "lose-line");
+                }
+            }
+            checkWinMatrix(matrix);
         }, spinDuration);
     }
 
-    function checkWin(s1, s2, s3) {
+    // Prüft alle Gewinnlinien in der Matrix
+    function checkWinMatrix(matrix) {
         let result = "Verloren!";
         let className = "lose";
-        let multiplier = 0;
-        if (s1 === s2 && s2 === s3) {
-            result = "JACKPOT! Gewinn x10";
+        let maxMultiplier = 0;
+        let bestWin = null;
+        let winCoords = [];
+
+        // Gewinnchance prüfen
+        if (Math.random() * 100 < winChance) {
+            // Prüfe horizontale Linien
+            for (let i = 0; i < 3; i++) {
+                let row = matrix[i];
+                if (row[0] === row[1] && row[1] === row[2]) {
+                    let entry = getWinEntry(row[0]);
+                    if (entry && entry.three > 1 && entry.three > maxMultiplier) {
+                        maxMultiplier = entry.three;
+                        bestWin = { line: `Reihe ${i+1}`, symbol: row[0], multi: entry.three, coords: [[i,0],[i,1],[i,2]] };
+                    }
+                } else {
+                    // Zwei gleiche in einer Reihe, nur wenn two > 1
+                    if (row[0] === row[1]) {
+                        let entry = getWinEntry(row[0]);
+                        if (entry && entry.two > 1 && entry.two > maxMultiplier) {
+                            maxMultiplier = entry.two;
+                            bestWin = { line: `Reihe ${i+1}`, symbol: row[0], multi: entry.two, coords: [[i,0],[i,1]] };
+                        }
+                    }
+                    if (row[1] === row[2]) {
+                        let entry = getWinEntry(row[1]);
+                        if (entry && entry.two > 1 && entry.two > maxMultiplier) {
+                            maxMultiplier = entry.two;
+                            bestWin = { line: `Reihe ${i+1}`, symbol: row[1], multi: entry.two, coords: [[i,1],[i,2]] };
+                        }
+                    }
+                    if (row[0] === row[2]) {
+                        let entry = getWinEntry(row[0]);
+                        if (entry && entry.two > 1 && entry.two > maxMultiplier) {
+                            maxMultiplier = entry.two;
+                            bestWin = { line: `Reihe ${i+1}`, symbol: row[0], multi: entry.two, coords: [[i,0],[i,2]] };
+                        }
+                    }
+                }
+            }
+            // Prüfe Diagonalen (nur 3 gleiche, nur wenn three > 1)
+            if (matrix[0][0] === matrix[1][1] && matrix[1][1] === matrix[2][2]) {
+                let entry = getWinEntry(matrix[0][0]);
+                if (entry && entry.three > 1 && entry.three > maxMultiplier) {
+                    maxMultiplier = entry.three;
+                    bestWin = { line: "Diagonal ↘", symbol: matrix[0][0], multi: entry.three, coords: [[0,0],[1,1],[2,2]] };
+                }
+            }
+            if (matrix[0][2] === matrix[1][1] && matrix[1][1] === matrix[2][0]) {
+                let entry = getWinEntry(matrix[0][2]);
+                if (entry && entry.three > 1 && entry.three > maxMultiplier) {
+                    maxMultiplier = entry.three;
+                    bestWin = { line: "Diagonal ↙", symbol: matrix[0][2], multi: entry.three, coords: [[0,2],[1,1],[2,0]] };
+                }
+            }
+        }
+
+        // Optische Hervorhebung der Gewinnlinie
+        for (let i = 0; i < 3; i++)
+            for (let j = 0; j < 3; j++)
+                slotMatrixEls[i][j].classList.remove("win-line", "lose-line");
+        if (bestWin && bestWin.coords) {
+            bestWin.coords.forEach(([i, j]) => {
+                slotMatrixEls[i][j].classList.add("win-line");
+            });
+        } else {
+            // Alle Felder leicht ausgrauen bei Verlust
+            for (let i = 0; i < 3; i++)
+                for (let j = 0; j < 3; j++)
+                    slotMatrixEls[i][j].classList.add("lose-line");
+        }
+
+        if (maxMultiplier > 0) {
+            result = `Gewonnen! ${bestWin.line}: ${bestWin.symbol} x${bestWin.multi}`;
             className = "win";
-            multiplier = 10;
-            winSound.play();
-        } else if (Math.random() * 100 < winChance) {
-            multiplier = getRandomMultiplier();
-            result = `Gewonnen! Gewinn x${multiplier}`;
-            className = "win";
-            
             winSound.play();
         } else {
             loseSound.play();
             setTimeout(() => {
-                resultText.classList.remove("lose"); // Stoppt das Wackeln nach 3 Sekunden
+                resultText.classList.remove("lose");
             }, 3000);
         }
         resultText.innerText = result;
         resultText.className = className;
-        updateBetSummary(multiplier);
+        updateBetSummary(maxMultiplier);
     }
 
     function updateBetSummary(multiplier) {
@@ -174,4 +267,22 @@ document.addEventListener("DOMContentLoaded", () => {
         displayBetSummary();
         startSpin();
     };
+
+    // Gewinntabelle im DOM anzeigen
+    function renderWinTable() {
+        if (!winTableDiv) return;
+        let html = `
+        <table class="win-table">
+            <tr><th>Symbol</th><th>3x</th><th>2x</th></tr>`;
+        winTable.forEach(row => {
+            html += `<tr>
+                <td style="font-size:1.5em">${row.symbol}</td>
+                <td>x${row.three}</td>
+                <td>${row.two > 1 ? "x"+row.two : "-"}</td>
+            </tr>`;
+        });
+        html += "</table>";
+        winTableDiv.innerHTML = html;
+    }
+    renderWinTable();
 });
