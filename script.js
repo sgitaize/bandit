@@ -45,6 +45,154 @@ document.addEventListener("DOMContentLoaded", () => {
         return winTable.find(e => e.symbol === symbol);
     }
 
+    function getSymbolWeight(entry) {
+        const payout = entry.three + Math.max(entry.two, 1);
+        return Math.max(1, Math.round(120 / payout));
+    }
+
+    function pickWeightedEntry(entries, getWeight) {
+        const totalWeight = entries.reduce((sum, entry) => sum + getWeight(entry), 0);
+        let random = Math.random() * totalWeight;
+
+        for (const entry of entries) {
+            random -= getWeight(entry);
+            if (random <= 0) {
+                return entry;
+            }
+        }
+
+        return entries[entries.length - 1];
+    }
+
+    function pickRandomSymbol() {
+        return pickWeightedEntry(winTable, getSymbolWeight).symbol;
+    }
+
+    function createRandomMatrix() {
+        let matrix = [
+            ["", "", ""],
+            ["", "", ""],
+            ["", "", ""]
+        ];
+
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                matrix[i][j] = pickRandomSymbol();
+            }
+        }
+
+        return matrix;
+    }
+
+    function calculateBestWin(matrix) {
+        let maxMultiplier = 0;
+        let bestWin = null;
+
+        // Horizontale Linien
+        for (let i = 0; i < 3; i++) {
+            let row = matrix[i];
+            if (row[0] === row[1] && row[1] === row[2]) {
+                let entry = getWinEntry(row[0]);
+                if (entry && entry.three > 1 && entry.three > maxMultiplier) {
+                    maxMultiplier = entry.three;
+                    bestWin = { line: `Reihe ${i + 1}`, symbol: row[0], multi: entry.three, coords: [[i, 0], [i, 1], [i, 2]] };
+                }
+            } else {
+                // Zwei gleiche in einer Reihe, nur wenn two > 1
+                if (row[0] === row[1]) {
+                    let entry = getWinEntry(row[0]);
+                    if (entry && entry.two > 1 && entry.two > maxMultiplier) {
+                        maxMultiplier = entry.two;
+                        bestWin = { line: `Reihe ${i + 1}`, symbol: row[0], multi: entry.two, coords: [[i, 0], [i, 1]] };
+                    }
+                }
+                if (row[1] === row[2]) {
+                    let entry = getWinEntry(row[1]);
+                    if (entry && entry.two > 1 && entry.two > maxMultiplier) {
+                        maxMultiplier = entry.two;
+                        bestWin = { line: `Reihe ${i + 1}`, symbol: row[1], multi: entry.two, coords: [[i, 1], [i, 2]] };
+                    }
+                }
+                if (row[0] === row[2]) {
+                    let entry = getWinEntry(row[0]);
+                    if (entry && entry.two > 1 && entry.two > maxMultiplier) {
+                        maxMultiplier = entry.two;
+                        bestWin = { line: `Reihe ${i + 1}`, symbol: row[0], multi: entry.two, coords: [[i, 0], [i, 2]] };
+                    }
+                }
+            }
+        }
+
+        // Diagonalen (nur 3 gleiche, nur wenn three > 1)
+        if (matrix[0][0] === matrix[1][1] && matrix[1][1] === matrix[2][2]) {
+            let entry = getWinEntry(matrix[0][0]);
+            if (entry && entry.three > 1 && entry.three > maxMultiplier) {
+                maxMultiplier = entry.three;
+                bestWin = { line: "Diagonal ↘", symbol: matrix[0][0], multi: entry.three, coords: [[0, 0], [1, 1], [2, 2]] };
+            }
+        }
+        if (matrix[0][2] === matrix[1][1] && matrix[1][1] === matrix[2][0]) {
+            let entry = getWinEntry(matrix[0][2]);
+            if (entry && entry.three > 1 && entry.three > maxMultiplier) {
+                maxMultiplier = entry.three;
+                bestWin = { line: "Diagonal ↙", symbol: matrix[0][2], multi: entry.three, coords: [[0, 2], [1, 1], [2, 0]] };
+            }
+        }
+
+        return { maxMultiplier, bestWin };
+    }
+
+    function forceWinningPattern(matrix) {
+        const canThree = winTable.filter(entry => entry.three > 1);
+        const canTwo = winTable.filter(entry => entry.two > 1);
+        const useThree = canThree.length > 0 && (canTwo.length === 0 || Math.random() < 0.7);
+
+        if (useThree) {
+            const entry = pickWeightedEntry(canThree, e => getSymbolWeight(e));
+            const lines = [
+                [[0, 0], [0, 1], [0, 2]],
+                [[1, 0], [1, 1], [1, 2]],
+                [[2, 0], [2, 1], [2, 2]],
+                [[0, 0], [1, 1], [2, 2]],
+                [[0, 2], [1, 1], [2, 0]]
+            ];
+            const line = lines[Math.floor(Math.random() * lines.length)];
+            line.forEach(([i, j]) => matrix[i][j] = entry.symbol);
+            return;
+        }
+
+        if (canTwo.length > 0) {
+            const entry = pickWeightedEntry(canTwo, e => getSymbolWeight(e));
+            const row = Math.floor(Math.random() * 3);
+            const pairs = [
+                [[row, 0], [row, 1]],
+                [[row, 1], [row, 2]],
+                [[row, 0], [row, 2]]
+            ];
+            const pair = pairs[Math.floor(Math.random() * pairs.length)];
+            pair.forEach(([i, j]) => matrix[i][j] = entry.symbol);
+        }
+    }
+
+    function buildFinalMatrix() {
+        const shouldWin = Math.random() * 100 < winChance;
+
+        for (let attempt = 0; attempt < 120; attempt++) {
+            const matrix = createRandomMatrix();
+
+            if (shouldWin) {
+                forceWinningPattern(matrix);
+                if (calculateBestWin(matrix).maxMultiplier > 0) {
+                    return matrix;
+                }
+            } else if (calculateBestWin(matrix).maxMultiplier === 0) {
+                return matrix;
+            }
+        }
+
+        return createRandomMatrix();
+    }
+
     // Initialisiere Gewinnchance-Slider korrekt
     winChanceSlider.value = winChance;
     winChanceValue.innerText = winChance + "%";
@@ -148,12 +296,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         setTimeout(() => {
             clearInterval(interval);
-            // Endgültige Matrix generieren
+            // Endgültige Matrix anhand Gewinnchance und Gewinntabelle generieren
+            matrix = buildFinalMatrix();
             for (let i = 0; i < 3; i++) {
                 for (let j = 0; j < 3; j++) {
-                    let sym = symbols[Math.floor(Math.random() * symbols.length)];
-                    matrix[i][j] = sym;
-                    slotMatrixEls[i][j].innerText = sym;
+                    slotMatrixEls[i][j].innerText = matrix[i][j];
                     slotMatrixEls[i][j].classList.remove("win-line", "lose-line");
                 }
             }
@@ -165,62 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function checkWinMatrix(matrix) {
         let result = "Verloren!";
         let className = "lose";
-        let maxMultiplier = 0;
-        let bestWin = null;
-        let winCoords = [];
-
-        // Gewinnchance prüfen
-        if (Math.random() * 100 < winChance) {
-            // Prüfe horizontale Linien
-            for (let i = 0; i < 3; i++) {
-                let row = matrix[i];
-                if (row[0] === row[1] && row[1] === row[2]) {
-                    let entry = getWinEntry(row[0]);
-                    if (entry && entry.three > 1 && entry.three > maxMultiplier) {
-                        maxMultiplier = entry.three;
-                        bestWin = { line: `Reihe ${i+1}`, symbol: row[0], multi: entry.three, coords: [[i,0],[i,1],[i,2]] };
-                    }
-                } else {
-                    // Zwei gleiche in einer Reihe, nur wenn two > 1
-                    if (row[0] === row[1]) {
-                        let entry = getWinEntry(row[0]);
-                        if (entry && entry.two > 1 && entry.two > maxMultiplier) {
-                            maxMultiplier = entry.two;
-                            bestWin = { line: `Reihe ${i+1}`, symbol: row[0], multi: entry.two, coords: [[i,0],[i,1]] };
-                        }
-                    }
-                    if (row[1] === row[2]) {
-                        let entry = getWinEntry(row[1]);
-                        if (entry && entry.two > 1 && entry.two > maxMultiplier) {
-                            maxMultiplier = entry.two;
-                            bestWin = { line: `Reihe ${i+1}`, symbol: row[1], multi: entry.two, coords: [[i,1],[i,2]] };
-                        }
-                    }
-                    if (row[0] === row[2]) {
-                        let entry = getWinEntry(row[0]);
-                        if (entry && entry.two > 1 && entry.two > maxMultiplier) {
-                            maxMultiplier = entry.two;
-                            bestWin = { line: `Reihe ${i+1}`, symbol: row[0], multi: entry.two, coords: [[i,0],[i,2]] };
-                        }
-                    }
-                }
-            }
-            // Prüfe Diagonalen (nur 3 gleiche, nur wenn three > 1)
-            if (matrix[0][0] === matrix[1][1] && matrix[1][1] === matrix[2][2]) {
-                let entry = getWinEntry(matrix[0][0]);
-                if (entry && entry.three > 1 && entry.three > maxMultiplier) {
-                    maxMultiplier = entry.three;
-                    bestWin = { line: "Diagonal ↘", symbol: matrix[0][0], multi: entry.three, coords: [[0,0],[1,1],[2,2]] };
-                }
-            }
-            if (matrix[0][2] === matrix[1][1] && matrix[1][1] === matrix[2][0]) {
-                let entry = getWinEntry(matrix[0][2]);
-                if (entry && entry.three > 1 && entry.three > maxMultiplier) {
-                    maxMultiplier = entry.three;
-                    bestWin = { line: "Diagonal ↙", symbol: matrix[0][2], multi: entry.three, coords: [[0,2],[1,1],[2,0]] };
-                }
-            }
-        }
+        const { maxMultiplier, bestWin } = calculateBestWin(matrix);
 
         // Optische Hervorhebung der Gewinnlinie
         for (let i = 0; i < 3; i++)
